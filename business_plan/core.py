@@ -71,7 +71,7 @@ class EmployeeMaker(Employee):
                           profit_center=False, hiring_year=hiring_year, name=name)
 
 class Evolution(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
     _generic_eq = True
     _non_serializable_attributes = []
     _non_eq_attributes = ['name']
