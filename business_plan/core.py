@@ -224,15 +224,41 @@ class MainRevenue(DessiaObject):
     _non_hash_attributes = ['name']
 
     def __init__(self, operating_divisions: List[OperatingDivision],
+                 last_margin: float=None, cumulative_cost: float=None, cumulative_revenue: float=None,
+                 last_revenue: float=None, strategy_txt: str = None, revenue_txt: str = None,
                  name: str = ''):
+
         DessiaObject.__init__(self, name=name)
         self.operating_divisions = operating_divisions
+
+        if last_margin is None and cumulative_cost is None and cumulative_revenue is None and last_revenue is None and strategy_txt is None and revenue_txt is None:
+            self.update()
+        else:
+            self.last_margin, self.cumulative_cost, self.cumulative_revenue, self.last_revenue, self.strategy_txt, self.revenue_txt = last_margin, cumulative_cost, cumulative_revenue, last_revenue, strategy_txt, revenue_txt
+
+    def update(self):
+        last_year = self.last_year()
+        last_margin = self.margin(last_year)
+        cumulative_cost = self._cumulative_cost(last_year)
+        cumulative_revenue = self.revenue(last_year).cumulative()
+        last_revenue = self.revenue(last_year).evolutions[last_year]
+        strategy_txt = ''
+        for operating_division in self.operating_divisions:
+            name = operating_division.geographic_area.name
+            start_year = operating_division.revenue.min()
+            strategy_txt += ' ' + name + ':' + str(start_year)
+        revenue_txt = ''
+        for operating_division in self.operating_divisions:
+            name = operating_division.geographic_area.name
+            turnover = operating_division.revenue.evolutions[last_year]
+            revenue_txt += ' ' + name + ':' + str(turnover)
+        self.last_margin, self.cumulative_cost, self.cumulative_revenue, self.last_revenue, self.strategy_txt, self.revenue_txt = last_margin, cumulative_cost, cumulative_revenue, last_revenue, strategy_txt, revenue_txt
 
     def __str__(self):
         last_year = self.last_year()
         costs = self.cost(last_year)
         margin = self.margin(last_year)
-        cumulative_cost = self.cumulative_cost(last_year)
+        cumulative_cost = self._cumulative_cost(last_year)
         cumulative_revenue = self.revenue(last_year).cumulative()
         last_revenue = self.revenue(last_year).evolutions[last_year]
         output = 'Solution margin:{} investment:{} '.format(margin, cumulative_cost) + '\n'
@@ -247,6 +273,43 @@ class MainRevenue(DessiaObject):
             turnover = operating_division.revenue.evolutions[last_year]
             output += ' ' + name + ' revenues:{}'.format(turnover) + '\n'
         return output
+
+    def to_csv(self, max_country=None):
+        if max_country is None:
+            max_country = len(self.operating_divisions)
+        title = ''
+        datas = ''
+        last_year = self.last_year()
+        costs = self.cost(last_year)
+        margin = self.margin(last_year)
+        title += 'margin'
+        datas += str(margin)
+        cumulative_cost = self._cumulative_cost(last_year)
+        title += ',cumulative_cost'
+        datas += ',' + str(cumulative_cost)
+        cumulative_revenue = self.revenue(last_year).cumulative()
+        last_revenue = self.revenue(last_year).evolutions[last_year]
+        for operating_division in self.operating_divisions:
+            name = operating_division.geographic_area.name
+            start_year = operating_division.revenue.min()
+            title += ',name, start_year'
+            datas += ',' + name + ',' + str(start_year)
+        for i in range(max_country - len(self.operating_divisions)):
+            title += ',name, start_year'
+            datas += ',' + ','
+        title += ',cumulative_revenue'
+        datas += ',' + str(cumulative_revenue)
+        title += ',last_revenue'
+        datas += ',' + str(last_revenue)
+        for operating_division in self.operating_divisions:
+            name = operating_division.geographic_area.name
+            turnover = operating_division.revenue.evolutions[last_year]
+            title += ',name, turnover_last_year'
+            datas += ',' + name + ',' + str(turnover)
+        for i in range(max_country - len(self.operating_divisions)):
+            title += ',name, turnover_last_year'
+            datas += ',' + ','
+        return title, datas
 
     def revenue(self, last_year):
         revenue = Evolution()
@@ -266,7 +329,7 @@ class MainRevenue(DessiaObject):
         cost = self.cost(last_year)
         return (revenue.evolutions[last_year] - cost.evolutions[last_year])/revenue.evolutions[last_year]
 
-    def cumulative_cost(self, last_year):
+    def _cumulative_cost(self, last_year):
         cost = self.cost(last_year)
         return cost.cumulative()
 
@@ -283,11 +346,13 @@ class MainRevenueOptimizer(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
+    _dessia_methods = ['minimize']
+
     def __init__(self, name: str = ''):
         DessiaObject.__init__(self, name=name)
 
     def minimize(self, main_revenues: List[MainRevenue], initial_revenue_max: float, increase_revenue_max: float,
-                 margin_min: float, margin_max: float, cumulative_cost_max: float, revenue_obj: float):
+                 margin_min: float, margin_max: float, cumulative_cost_max: float, revenue_obj: float)->List[MainRevenue]:
         solutions = []
         for main_revenue in main_revenues:
             self._x = [0] * 2 * len(main_revenue.operating_divisions)
@@ -315,7 +380,7 @@ class MainRevenueOptimizer(DessiaObject):
             self.update(x, main_revenue)
             last_year = main_revenue.last_year()
             margin = main_revenue.margin(last_year)
-            cumulative_cost = main_revenue.cumulative_cost(last_year)
+            cumulative_cost = main_revenue._cumulative_cost(last_year)
             last_revenue = main_revenue.revenue(last_year).evolutions[last_year]
             self._margin = margin
             self._cumulative_cost = cumulative_cost
@@ -331,7 +396,7 @@ class MainRevenueOptimizer(DessiaObject):
             self.update(x, main_revenue)
             last_year = main_revenue.last_year()
             margin = main_revenue.margin(last_year)
-            cumulative_cost = main_revenue.cumulative_cost(last_year)
+            cumulative_cost = main_revenue._cumulative_cost(last_year)
             last_revenue = main_revenue.revenue(last_year).evolutions[last_year]
             self._margin = margin
             self._cumulative_cost = cumulative_cost
@@ -371,11 +436,12 @@ class MainRevenueOptimizer(DessiaObject):
             if min(self.constraint(x_opt, *data)) > -1e-4:
                 last_year = main_revenue.last_year()
                 margin = main_revenue.margin(last_year)
-                cumulative_cost = main_revenue.cumulative_cost(last_year)
+                cumulative_cost = main_revenue._cumulative_cost(last_year)
                 if f_obj < margin:
                     f_obj = margin
                     x_out = x_opt
                     solution = main_revenue.copy()
+                    solution.update()
         return solution
 
 class MainRevenueGenerator(DessiaObject):
@@ -385,12 +451,14 @@ class MainRevenueGenerator(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
+    _dessia_methods = ['generate']
+
     def __init__(self, geographic_areas: List[GeographicArea],
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
         self.geographic_areas = geographic_areas
 
-    def generate(self, initial_year: int, last_year: int):
+    def generate(self, initial_year: int, last_year: int)->List[MainRevenue]:
         main_revenues = []
         for number_geographic_area in range(len(self.geographic_areas)):
             for geographic_areas in permutations(self.geographic_areas, number_geographic_area + 1):
