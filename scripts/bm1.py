@@ -46,7 +46,7 @@ ga4 = bp.GeographicArea(market_size = 90,
                         name = 'USA')
 
 mrg1 = bp.MainRevenueGenerator([ga1, ga2, ga3])
-main_revenues = mrg1.generate(initial_year=2020, last_year=2024)
+main_revenues = mrg1.generate(initial_year=2020, last_year=2023)
 mro1 = bp.MainRevenueOptimizer()
 solutions = mro1.minimize(main_revenues=main_revenues, initial_revenue_max=1e6, increase_revenue_max=5,
                                 margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,

@@ -86,19 +86,19 @@ class Evolution(DessiaObject):
             self.evolutions = evolutions
 
     def __add__(self, other_evolution):
-        year1 = list(self.evolutions.keys())
-        year2 = list(other_evolution.evolutions.keys())
+        year1 = [int(y) for y in self.evolutions.keys()]
+        year2 = [int(y) for y in other_evolution.evolutions.keys()]
         all_year = year1
         for y in year2:
             if y not in all_year:
                 all_year.append(y)
         evolutions = {}
         for y in all_year:
-            evolutions[y] = 0
-            if y in self.evolutions:
-                evolutions[y] += self.evolutions[y]
-            if y in other_evolution.evolutions:
-                evolutions[y] += other_evolution.evolutions[y]
+            evolutions[str(y)] = 0
+            if str(y) in self.evolutions:
+                evolutions[str(y)] += self.evolutions[str(y)]
+            if str(y) in other_evolution.evolutions:
+                evolutions[str(y)] += other_evolution.evolutions[str(y)]
         return Evolution(evolutions=evolutions, name=self.name)
 
     def __mul__(self, other):
@@ -120,7 +120,7 @@ class Evolution(DessiaObject):
         self.evolutions = evolutions
 
     def cut(self, last_year, copy=False):
-        evol = {k:v for k, v in self.evolutions.items() if k <= last_year}
+        evol = {k:v for k, v in self.evolutions.items() if int(k) <= int(last_year)}
         if copy:
             return Evolution(evol, self.name)
         else:
@@ -336,8 +336,8 @@ class MainRevenue(DessiaObject):
     def last_year(self):
         last_year = 0
         for operating_division in self.operating_divisions:
-            last_year = max(last_year, operating_division.revenue.max())
-        return last_year
+            last_year = max(last_year, int(operating_division.revenue.max()))
+        return str(last_year)
 
 class MainRevenueOptimizer(DessiaObject):
     _standalone_in_db = True
@@ -371,7 +371,7 @@ class MainRevenueOptimizer(DessiaObject):
                 final_year = operating_division.revenue.max()
                 rev = {}
                 for y in range(final_year - initial_year + 1):
-                    rev[initial_year + y] = initial_revenue*(1 + increase_revenue)**y
+                    rev[str(initial_year + y)] = initial_revenue*(1 + increase_revenue)**y
                 operating_division.revenue.update(rev)
             self._x = x
 
