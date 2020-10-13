@@ -225,7 +225,7 @@ class MainRevenue(DessiaObject):
 
     def __init__(self, operating_divisions: List[OperatingDivision],
                  last_margin: float=None, cumulative_cost: float=None, cumulative_revenue: float=None,
-                 last_revenue: float=None, strategy_txt: str = None, revenue_txt: str = None,
+                 last_revenue: float=None, strategy_txt: str = '', revenue_txt: str = '',
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
