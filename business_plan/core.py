@@ -77,7 +77,7 @@ class Evolution(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
-    def __init__(self, evolutions: Dict[int, float]=None,
+    def __init__(self, evolutions: Dict[str, float]=None,
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
         if evolutions is None:
@@ -108,10 +108,10 @@ class Evolution(DessiaObject):
         return Evolution(output)
 
     def min(self):
-        return min(list(self.evolutions.keys()))
+        return min([int(y) for y in self.evolutions.keys()])
 
     def max(self):
-        return max(list(self.evolutions.keys()))
+        return max([int(y) for y in self.evolutions.keys()])
 
     def cumulative(self):
         return sum([e for e in self.evolutions.values()])
@@ -192,7 +192,7 @@ class OperatingDivision(DessiaObject):
 
     @classmethod
     def genere_operating_division(cls, geographic_area, initial_year, last_year):
-        revenue = Evolution({k + initial_year : 1 for k in range(last_year - initial_year)})
+        revenue = Evolution({str(k + initial_year) : 1 for k in range(last_year - initial_year)})
         return cls(geographic_area, revenue)
 
     def update_employees(self):
