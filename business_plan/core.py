@@ -433,8 +433,9 @@ class MainRevenueOptimizer(DessiaObject):
             for mr in mrs:
                 li_margin.append(mr.last_margin)
             sort_li_margin = npy.argsort(npy.array(li_margin))
+            best_li_margin = sort_li_margin[::-1]
             best_main_revenues.extend(
-                [mrs[i] for i in sort_li_margin[0: min(number_solutions_per_family, len(sort_li_margin))]])
+                [mrs[i] for i in best_li_margin[0: min(number_solutions_per_family, len(best_li_margin))]])
         return best_main_revenues
 
     def update(self, x, main_revenue):
