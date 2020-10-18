@@ -545,7 +545,7 @@ class MainRevenueGenerator(DessiaObject):
     def decision_tree(self, initial_year: int, last_year: int) -> List[MainRevenue]:
         main_geographic_areas = self.extract_main_geographic_area()
         number_main_area = len(main_geographic_areas)
-        number_years = last_year - initial_year - 1
+        number_years = last_year - initial_year
         dt = DecisionTree()
         # point 0 : number main area
         # point 1 : indice main area
@@ -598,7 +598,7 @@ class MainRevenueGenerator(DessiaObject):
         List[OperatingDivision]]:
         geographic_areas = main_area.extract_geographic_area(self.geographic_areas)
         number_area = len(geographic_areas)
-        number_years = last_year - initial_year - 1
+        number_years = last_year - initial_year
         dt = DecisionTree()
         # point 0 : number geographic area
         # point 1 : indice geographic area
