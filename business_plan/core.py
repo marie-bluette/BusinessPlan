@@ -586,7 +586,9 @@ class MainRevenueGenerator(DessiaObject):
                             sols.append(self.decision_tree_geographic_area(main_geographic_areas[ind_area],
                                                                            initial_year + ind_year, last_year))
                         for operating_divisions in product(*sols):
-                            ods = [o[0] for o in operating_divisions]
+                            ods = []
+                            for od in operating_divisions:
+                                ods.extend(od)
                             main_revenue = MainRevenue(ods)
                             main_revenues.append(main_revenue)
             dt.NextNode(valid)
