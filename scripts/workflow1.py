@@ -44,6 +44,7 @@ block_optimizer = wf.InstanciateModel(bp.MainRevenueOptimizer, name='MainRevenue
 method_minimize = wf.ModelMethod(bp.MainRevenueOptimizer, 'minimize', name='minimize')
 
 parallel_plot_block = wf.ParallelPlot(['last_margin', 'cumulative_cost', 'cumulative_revenue',
+                                       'number_main_area', 'number_area',
                                        'last_revenue', 'strategy_txt', 'revenue_txt'])
 
 blocks = []

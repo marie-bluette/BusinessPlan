@@ -38,16 +38,16 @@ Japan = bp.GeographicArea(market_size=900000000, market_maturity=4, market_acces
                           sale_annual_package=72000, support_annual_package=55000, hiring_cost=13000,
                           main_geographic_area=Asia, name='Japan')
 
-# mrg1 = bp.MainRevenueGenerator([France, Germany, Italy, USA, Canada, China, Japan])
-# main_revenues = mrg1.decision_tree(initial_year=2020, last_year=2022)
-# print(len(main_revenues))
-# mro1 = bp.MainRevenueOptimizer()
-# solutions = mro1.minimize(main_revenues=main_revenues, initial_revenue_max=1e6, increase_revenue_max=5,
-#                           margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,
-#                           revenue_obj=5e6)
+mrg1 = bp.MainRevenueGenerator([France, Germany, Italy, USA, Canada, China, Japan])
+main_revenues = mrg1.decision_tree(initial_year=2020, last_year=2023)
+print(len(main_revenues))
+mro1 = bp.MainRevenueOptimizer()
+solutions = mro1.minimize(main_revenues=main_revenues, initial_revenue_max=1e6, increase_revenue_max=5,
+                          margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,
+                          revenue_obj=5e6)
 
-c = Client(api_url='https://api.ibm.dessia.tech')
-r = c.create_object_from_python_object(Germany)
+# c = Client(api_url='https://api.ibm.dessia.tech')
+# r = c.create_object_from_python_object(solutions[0])
 
 #
 # file = open('output.csv', 'w')

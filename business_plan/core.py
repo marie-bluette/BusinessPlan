@@ -263,10 +263,20 @@ class MainRevenue(DessiaObject):
     def __init__(self, operating_divisions: List[OperatingDivision],
                  last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
                  last_revenue: float = None, strategy_txt: str = '', revenue_txt: str = '',
+                 number_main_area:int = None, number_area:int = None,
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
         self.operating_divisions = operating_divisions
+
+        if number_area is None:
+            self.number_area = len(operating_divisions)
+        else:
+            self.number_area = number_area
+        if number_main_area is None:
+            self.number_main_area = len(self.extract_main_geographic_area())
+        else:
+            self.number_main_area = number_main_area
 
         if last_margin is None and cumulative_cost is None and cumulative_revenue is None and last_revenue is None and strategy_txt is None and revenue_txt is None:
             self.update()
@@ -310,6 +320,14 @@ class MainRevenue(DessiaObject):
             turnover = operating_division.revenue.evolutions[last_year]
             output += ' ' + name + ' revenues:{}'.format(turnover) + '\n'
         return output
+
+    def extract_main_geographic_area(self):
+        main_geographic_areas = []
+        for operating_division in self.operating_divisions:
+            geographic_area = operating_division.geographic_area
+            if geographic_area.main_geographic_area not in main_geographic_areas:
+                main_geographic_areas.append(geographic_area.main_geographic_area)
+        return main_geographic_areas
 
     def to_csv(self, max_country=None):
         if max_country is None:
