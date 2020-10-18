@@ -1,4 +1,3 @@
-
 from dessia_common import DessiaObject
 from typing import TypeVar, List, Dict
 from itertools import product, permutations
@@ -16,12 +15,12 @@ class Employee(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
-    def __init__(self, profit_center: bool=False,
-                 salary: float=None,
-                 general_expenses: float=0,
-                 hiring_year: float=None,
-                 exit_year: float=None,
-                 name:str=''):
+    def __init__(self, profit_center: bool = False,
+                 salary: float = None,
+                 general_expenses: float = 0,
+                 hiring_year: float = None,
+                 exit_year: float = None,
+                 name: str = ''):
 
         DessiaObject.__init__(self, name=name)
         self.exit_year = exit_year
@@ -46,29 +45,34 @@ class Employee(DessiaObject):
             salary_evolution[self.hiring_year + i] = self.cost(self.hiring_year + i)
         return Evolution(salary_evolution)
 
+
 class EmployeeSale(Employee):
     def __init__(self, salary: float,
-                 general_expenses: float, hiring_year: float=None, name:str=''):
+                 general_expenses: float, hiring_year: float = None, name: str = ''):
         Employee.__init__(self, salary=salary, general_expenses=general_expenses,
                           profit_center=True, hiring_year=hiring_year, name=name)
 
+
 class EmployeeSupport(Employee):
     def __init__(self, salary: float,
-                 general_expenses: float, hiring_year: float=None, name:str=''):
+                 general_expenses: float, hiring_year: float = None, name: str = ''):
         Employee.__init__(self, salary=salary, general_expenses=general_expenses,
                           profit_center=False, hiring_year=hiring_year, name=name)
+
 
 class EmployeeTalker(Employee):
     def __init__(self, salary: float,
-                 general_expenses: float, hiring_year: float=None, name:str=''):
+                 general_expenses: float, hiring_year: float = None, name: str = ''):
         Employee.__init__(self, salary=salary, general_expenses=general_expenses,
                           profit_center=False, hiring_year=hiring_year, name=name)
 
+
 class EmployeeMaker(Employee):
     def __init__(self, salary: float,
-                 general_expenses: float, hiring_year: float=None, name:str=''):
+                 general_expenses: float, hiring_year: float = None, name: str = ''):
         Employee.__init__(self, salary=salary, general_expenses=general_expenses,
                           profit_center=False, hiring_year=hiring_year, name=name)
+
 
 class Evolution(DessiaObject):
     _standalone_in_db = False
@@ -77,7 +81,7 @@ class Evolution(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
-    def __init__(self, evolutions: Dict[str, float]=None,
+    def __init__(self, evolutions: Dict[str, float] = None,
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
         if evolutions is None:
@@ -104,7 +108,7 @@ class Evolution(DessiaObject):
     def __mul__(self, other):
         output = {}
         for k, v in self.evolutions.items():
-            output[k] = v*other
+            output[k] = v * other
         return Evolution(output)
 
     def min(self):
@@ -120,11 +124,12 @@ class Evolution(DessiaObject):
         self.evolutions = evolutions
 
     def cut(self, last_year, copy=False):
-        evol = {k:v for k, v in self.evolutions.items() if int(k) <= int(last_year)}
+        evol = {k: v for k, v in self.evolutions.items() if int(k) <= int(last_year)}
         if copy:
             return Evolution(evol, self.name)
         else:
             self.evolutions = evol
+
 
 class MainDivision(DessiaObject):
     _standalone_in_db = True
@@ -137,6 +142,35 @@ class MainDivision(DessiaObject):
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
         self.asset_improve = asset_improve
+
+
+class MainGeographicArea(DessiaObject):
+    _standalone_in_db = True
+    _generic_eq = True
+    _non_serializable_attributes = []
+    _non_eq_attributes = ['name']
+    _non_hash_attributes = ['name']
+
+    def __init__(self, europe: bool = False,
+                 asia: bool = False,
+                 america: bool = False,
+                 name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.america = america
+        self.asia = asia
+        self.europe = europe
+
+    def extract_geographic_area(self, geographic_areas):
+        ga = []
+        for geographic_area in geographic_areas:
+            if geographic_area.main_geographic_area.europe and self.europe:
+                ga.append(geographic_area)
+            if geographic_area.main_geographic_area.asia and self.asia:
+                ga.append(geographic_area)
+            if geographic_area.main_geographic_area.america and self.america:
+                ga.append(geographic_area)
+        return ga
+
 
 class GeographicArea(DessiaObject):
     _standalone_in_db = True
@@ -154,8 +188,10 @@ class GeographicArea(DessiaObject):
                  sale_annual_package: float,
                  support_annual_package: float,
                  hiring_cost: float,
-                 name:str=''):
+                 main_geographic_area: MainGeographicArea,
+                 name: str = ''):
         DessiaObject.__init__(self, name=name)
+        self.main_geographic_area = main_geographic_area
         self.hiring_cost = hiring_cost
         self.support_annual_package = support_annual_package
         self.sale_annual_package = sale_annual_package
@@ -167,10 +203,10 @@ class GeographicArea(DessiaObject):
         self.market_size = market_size
 
     def number_sales(self, value_revenue):
-        return max(1, int(self.percentage_profit_center*value_revenue))
+        return max(1, int(self.percentage_profit_center * value_revenue))
 
     def number_supports(self, value_revenue):
-        return max(1, int(self.percentage_cost_center*value_revenue))
+        return max(1, int(self.percentage_cost_center * value_revenue))
 
 
 class OperatingDivision(DessiaObject):
@@ -192,7 +228,7 @@ class OperatingDivision(DessiaObject):
 
     @classmethod
     def genere_operating_division(cls, geographic_area, initial_year, last_year):
-        revenue = Evolution({str(k + initial_year) : 1 for k in range(last_year - initial_year)})
+        revenue = Evolution({str(k + initial_year): 1 for k in range(last_year - initial_year)})
         return cls(geographic_area, revenue)
 
     def update_employees(self):
@@ -212,9 +248,10 @@ class OperatingDivision(DessiaObject):
 
     def generate_costs(self, last_year):
         self.update_employees()
-        costs = self.evolution_sales*self.sale_employe.salary
-        costs += self.evolution_supports*self.support_employe.salary
+        costs = self.evolution_sales * self.sale_employe.salary
+        costs += self.evolution_supports * self.support_employe.salary
         return costs
+
 
 class MainRevenue(DessiaObject):
     _standalone_in_db = True
@@ -224,8 +261,8 @@ class MainRevenue(DessiaObject):
     _non_hash_attributes = ['name']
 
     def __init__(self, operating_divisions: List[OperatingDivision],
-                 last_margin: float=None, cumulative_cost: float=None, cumulative_revenue: float=None,
-                 last_revenue: float=None, strategy_txt: str = '', revenue_txt: str = '',
+                 last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
+                 last_revenue: float = None, strategy_txt: str = '', revenue_txt: str = '',
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
@@ -327,7 +364,7 @@ class MainRevenue(DessiaObject):
     def margin(self, last_year):
         revenue = self.revenue(last_year)
         cost = self.cost(last_year)
-        return (revenue.evolutions[last_year] - cost.evolutions[last_year])/revenue.evolutions[last_year]
+        return (revenue.evolutions[last_year] - cost.evolutions[last_year]) / revenue.evolutions[last_year]
 
     def _cumulative_cost(self, last_year):
         cost = self.cost(last_year)
@@ -338,6 +375,7 @@ class MainRevenue(DessiaObject):
         for operating_division in self.operating_divisions:
             last_year = max(last_year, int(operating_division.revenue.max()))
         return str(last_year)
+
 
 class MainRevenueOptimizer(DessiaObject):
     _standalone_in_db = True
@@ -352,7 +390,8 @@ class MainRevenueOptimizer(DessiaObject):
         DessiaObject.__init__(self, name=name)
 
     def minimize(self, main_revenues: List[MainRevenue], initial_revenue_max: float, increase_revenue_max: float,
-                 margin_min: float, margin_max: float, cumulative_cost_max: float, revenue_obj: float)->List[MainRevenue]:
+                 margin_min: float, margin_max: float, cumulative_cost_max: float, revenue_obj: float) -> List[
+        MainRevenue]:
         solutions = []
         for main_revenue in main_revenues:
             self._x = [0] * 2 * len(main_revenue.operating_divisions)
@@ -371,7 +410,7 @@ class MainRevenueOptimizer(DessiaObject):
                 final_year = operating_division.revenue.max()
                 rev = {}
                 for y in range(final_year - initial_year + 1):
-                    rev[str(initial_year + y)] = initial_revenue*(1 + increase_revenue)**y
+                    rev[str(initial_year + y)] = initial_revenue * (1 + increase_revenue) ** y
                 operating_division.revenue.update(rev)
             self._x = x
 
@@ -389,7 +428,7 @@ class MainRevenueOptimizer(DessiaObject):
             margin = self._margin
             cumulative_cost = self._cumulative_cost
             last_revenue = self._last_revenue
-        return (last_revenue - revenue_obj)**2
+        return (last_revenue - revenue_obj) ** 2
 
     def constraint(self, x, main_revenue, margin_min, margin_max, cumulative_cost_max, revenue_obj):
         if not npy.allclose(npy.array(x), npy.array(self._x)):
@@ -408,28 +447,28 @@ class MainRevenueOptimizer(DessiaObject):
         ine = [margin - margin_min]
         ine.append(margin_max - margin)
         ine.append(cumulative_cost_max - cumulative_cost)
-        ine.append(last_revenue - 0.9*revenue_obj)
-        ine.append(1.1*revenue_obj - last_revenue)
+        ine.append(last_revenue - 0.95 * revenue_obj)
+        ine.append(1.05 * revenue_obj - last_revenue)
         # ine.append(cumulative_cost - cumulative_cost_max*0.8)
         return ine
 
     def minimize_elem(self, main_revenue, initial_revenue_max, increase_revenue_max,
-                 margin_min, margin_max, cumulative_cost_max, revenue_obj):
+                      margin_min, margin_max, cumulative_cost_max, revenue_obj):
 
         data = (main_revenue, margin_min, margin_max, cumulative_cost_max, revenue_obj)
         cons = {'type': 'ineq', 'fun': self.constraint, 'args': data}
-        bnds = [[0, initial_revenue_max], [0, increase_revenue_max]]*len(main_revenue.operating_divisions)
+        bnds = [[0, initial_revenue_max], [0, increase_revenue_max]] * len(main_revenue.operating_divisions)
 
         f_obj = 0
         x_out = None
         solution = None
-        for nb in range(100):
+        for nb in range(10):
             x0 = []
             for b in bnds:
                 x0.append(b[0] + (b[1] - b[0]) * random.random())
             # x0 = [initial_revenue_max, increase_revenue_max]*len(self.main_revenue.operating_divisions)
             res = minimize(self.functional, x0, method='SLSQP', bounds=bnds,
-                           constraints=cons, args= data)
+                           constraints=cons, args=data)
             x_opt = res.x
             self._x = [0] * 2 * len(main_revenue.operating_divisions)
             self.update(x_opt, main_revenue)
@@ -443,6 +482,7 @@ class MainRevenueOptimizer(DessiaObject):
                     solution = main_revenue.copy()
                     solution.update()
         return solution
+
 
 class MainRevenueGenerator(DessiaObject):
     _standalone_in_db = True
@@ -458,23 +498,133 @@ class MainRevenueGenerator(DessiaObject):
         DessiaObject.__init__(self, name=name)
         self.geographic_areas = geographic_areas
 
-    def generate(self, initial_year: int, last_year: int)->List[MainRevenue]:
+    def extract_main_geographic_area(self):
+        main_geographic_areas = []
+        for geographic_area in self.geographic_areas:
+            if geographic_area.main_geographic_area not in main_geographic_areas:
+                main_geographic_areas.append(geographic_area.main_geographic_area)
+        return main_geographic_areas
+
+    def generate(self, initial_year: int, last_year: int) -> List[MainRevenue]:
         main_revenues = []
         for number_geographic_area in range(len(self.geographic_areas)):
             for geographic_areas in permutations(self.geographic_areas, number_geographic_area + 1):
 
                 if len(geographic_areas) > 0:
-                    for indice_years in product(range(last_year-initial_year), repeat = len(geographic_areas)-1):
+                    for indice_years in product(range(last_year - initial_year), repeat=len(geographic_areas) - 1):
                         operating_divisions = []
                         operating_divisions.append(OperatingDivision.genere_operating_division(geographic_areas[0],
                                                                                                initial_year, last_year))
                         for i, geographic_area in enumerate(geographic_areas[1:]):
                             operating_divisions.append(OperatingDivision.genere_operating_division(geographic_area,
-                                                                                                   initial_year + indice_years[i],
+                                                                                                   initial_year +
+                                                                                                   indice_years[i],
                                                                                                    last_year))
                         main_revenue = MainRevenue(operating_divisions)
                         main_revenues.append(main_revenue)
         return main_revenues
 
+    def decision_tree(self, initial_year: int, last_year: int) -> List[MainRevenue]:
+        main_geographic_areas = self.extract_main_geographic_area()
+        number_main_area = len(main_geographic_areas)
+        number_years = last_year - initial_year - 1
+        dt = DecisionTree()
+        # point 0 : number main area
+        # point 1 : indice main area
+        # point 2 : year start main area
+        main_revenues = []
+        while not dt.finished:
+            valid = True
+            if dt.current_depth == 0:
+                dt.SetCurrentNodeNumberPossibilities(number_main_area)
+            if dt.current_depth > 0:
+                nb_main_area = dt.current_node[0]
+                list_position = [2 * i + 1 for i in range(nb_main_area)]
+                if (dt.current_depth + 1) % 2 == 0:
+                    dt.SetCurrentNodeNumberPossibilities(number_main_area)
+                elif (dt.current_depth + 2) % 2 == 0:
+                    dt.SetCurrentNodeNumberPossibilities(number_years)
+                if dt.current_depth == 2 * (nb_main_area + 1) + 1:
+                    dt.SetCurrentNodeNumberPossibilities(0)
+            if dt.current_depth > 0 and (dt.current_depth + 1) % 2 == 0:
+                nb = int((dt.current_depth - 1) / 2.)
+                list_area = [dt.current_node[2 * i + 1] for i in range(nb)]
+                list_year = [dt.current_node[2 * i + 2] for i in range(nb)]
+                if len(set(list_area)) != len(list_area):
+                    valid = False
+            if valid and dt.current_depth > 0:
+                nb = int((dt.current_depth - 1) / 2.)
+                list_area = [dt.current_node[2 * i + 1] for i in range(nb)]
+                list_year = [dt.current_node[2 * i + 2] for i in range(nb)]
 
+                if dt.current_depth == 2 * (nb_main_area + 1) + 1:
+                    if 0 not in list_year:
+                        valid = False
+                    elif sorted(list_area) != list_area:  # isomorphism slection
+                        valid = False
+                    else:
+                        sols = []
+                        for ind_area, ind_year in zip(list_area, list_year):
+                            sols.append(self.decision_tree_geographic_area(main_geographic_areas[ind_area],
+                                                                           initial_year + ind_year, last_year))
+                        for operating_divisions in product(*sols):
+                            ods = [o[0] for o in operating_divisions]
+                            main_revenue = MainRevenue(ods)
+                            main_revenues.append(main_revenue)
+            dt.NextNode(valid)
+        return main_revenues
 
+    def decision_tree_geographic_area(self, main_area: MainGeographicArea, initial_year: int, last_year: int) -> List[
+        List[OperatingDivision]]:
+        geographic_areas = main_area.extract_geographic_area(self.geographic_areas)
+        number_area = len(geographic_areas)
+        number_years = last_year - initial_year - 1
+        dt = DecisionTree()
+        # point 0 : number geographic area
+        # point 1 : indice geographic area
+        # point 2 : year start geographic area
+        solutions = []
+        while not dt.finished:
+            valid = True
+            if dt.current_depth == 0:
+                dt.SetCurrentNodeNumberPossibilities(number_area)
+            if dt.current_depth > 0:
+                nb_area = dt.current_node[0]
+                list_position = [2 * i + 1 for i in range(nb_area)]
+                if (dt.current_depth + 1) % 2 == 0:
+                    dt.SetCurrentNodeNumberPossibilities(number_area)
+                elif (dt.current_depth + 2) % 2 == 0:
+                    dt.SetCurrentNodeNumberPossibilities(number_years)
+                if dt.current_depth == 2 * (nb_area + 1) + 1:
+                    dt.SetCurrentNodeNumberPossibilities(0)
+            if dt.current_depth > 0 and (dt.current_depth + 1) % 2 == 0:
+                nb = int((dt.current_depth - 1) / 2.)
+                list_area = [dt.current_node[2 * i + 1] for i in range(nb)]
+                if len(set(list_area)) != len(list_area):
+                    valid = False
+            if valid and dt.current_depth > 0:
+                if dt.current_depth == 2 * (nb_area + 1) + 1:
+                    nb = int((dt.current_depth - 1) / 2.)
+                    list_area = [dt.current_node[2 * i + 1] for i in range(nb)]
+                    list_year = [dt.current_node[2 * i + 2] for i in range(nb)]
+
+                    if dt.current_depth == 2 * (nb_area + 1) + 1:
+                        if 0 not in list_year:
+                            valid = False
+                        elif sorted(list_area) != list_area:  # isomorphism slection
+                            valid = False
+                        else:
+                            operating_divisions = []
+                            operating_divisions.append(
+                                OperatingDivision.genere_operating_division(geographic_areas[list_area[0]],
+                                                                            initial_year + list_year[0],
+                                                                            last_year))
+                            for i, indice in enumerate(list_area[1:]):
+                                operating_divisions.append(
+                                    OperatingDivision.genere_operating_division(geographic_areas[indice],
+                                                                                initial_year +
+                                                                                list_year[i + 1],
+                                                                                last_year))
+                            solutions.append(operating_divisions)
+            dt.NextNode(valid)
+        return solutions

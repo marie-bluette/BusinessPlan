@@ -1,65 +1,52 @@
-
 import business_plan as bp
 
-ga1 = bp.GeographicArea(market_size = 120,
-                        market_maturity = 2,
-                        market_access_cost = 0.001,
-                        market_penetration= 0.0004,
-                        percentage_profit_center = 0.000005,
-                        percentage_cost_center = 0.0000005,
-                        sale_annual_package = 130000,
-                        support_annual_package = 60000,
-                        hiring_cost = 20000,
-                        name = 'France')
+Europe = bp.MainGeographicArea(europe=True)
+Asia = bp.MainGeographicArea(asia=True)
+America = bp.MainGeographicArea(america=True)
 
-ga2 = bp.GeographicArea(market_size = 130,
-                        market_maturity = 2,
-                        market_access_cost = 0.001,
-                        market_penetration= 0.0004,
-                        percentage_profit_center = 0.000005,
-                        percentage_cost_center = 0.0000005,
-                        sale_annual_package = 130000,
-                        support_annual_package = 60000,
-                        hiring_cost = 20000,
-                        name = 'Germany')
+France = bp.GeographicArea(market_size=1100000000, market_maturity=8, market_access_cost=0.99, market_penetration=0.001,
+                           percentage_profit_center=0.0000105, percentage_cost_center=0.0000022,
+                           sale_annual_package=66000, support_annual_package=47500, hiring_cost=12000,
+                           main_geographic_area=Europe, name='France')
+Germany = bp.GeographicArea(market_size=1300000000, market_maturity=9, market_access_cost=1.026,
+                            market_penetration=0.001, percentage_profit_center=0.0000115,
+                            percentage_cost_center=0.00000224, sale_annual_package=64800, support_annual_package=54000,
+                            hiring_cost=11000, main_geographic_area=Europe, name='Germany ')
+Italy = bp.GeographicArea(market_size=900000000, market_maturity=4, market_access_cost=0.945, market_penetration=0.001,
+                          percentage_profit_center=0.0000105, percentage_cost_center=0.0000022,
+                          sale_annual_package=66000, support_annual_package=47500, hiring_cost=9000,
+                          main_geographic_area=Europe, name='Italy')
+USA = bp.GeographicArea(market_size=1200000000, market_maturity=10, market_access_cost=0.828, market_penetration=0.001,
+                        percentage_profit_center=0.000011, percentage_cost_center=0.00000224, sale_annual_package=72000,
+                        support_annual_package=55000, hiring_cost=13000,
+                        main_geographic_area=America, name='USA')
+Canada = bp.GeographicArea(market_size=1300000000, market_maturity=9, market_access_cost=0.846,
+                           market_penetration=0.001, percentage_profit_center=0.0000115,
+                           percentage_cost_center=0.00000224, sale_annual_package=64800, support_annual_package=54000,
+                           hiring_cost=11000,
+                           main_geographic_area=America, name='Canada')
+China = bp.GeographicArea(market_size=2500000000, market_maturity=10, market_access_cost=0.72, market_penetration=0.001,
+                          percentage_profit_center=0.000007, percentage_cost_center=0.0000011,
+                          sale_annual_package=30000, support_annual_package=27500, hiring_cost=7000,
+                          main_geographic_area=Asia, name='China')
+Japan = bp.GeographicArea(market_size=900000000, market_maturity=4, market_access_cost=0.99, market_penetration=0.001,
+                          percentage_profit_center=0.000011, percentage_cost_center=0.00000224,
+                          sale_annual_package=72000, support_annual_package=55000, hiring_cost=13000,
+                          main_geographic_area=Asia, name='Japan')
 
-ga3 = bp.GeographicArea(market_size = 90,
-                        market_maturity = 2,
-                        market_access_cost = 0.001,
-                        market_penetration= 0.0004,
-                        percentage_profit_center = 0.000005,
-                        percentage_cost_center = 0.0000005,
-                        sale_annual_package = 80000,
-                        support_annual_package = 40000,
-                        hiring_cost = 18000,
-                        name = 'Italy')
-
-ga4 = bp.GeographicArea(market_size = 90,
-                        market_maturity = 2,
-                        market_access_cost = 0.001,
-                        market_penetration= 0.0004,
-                        percentage_profit_center = 0.000004,
-                        percentage_cost_center = 0.0000006,
-                        sale_annual_package = 140000,
-                        support_annual_package = 75000,
-                        hiring_cost = 26000,
-                        name = 'USA')
-
-mrg1 = bp.MainRevenueGenerator([ga1, ga2, ga3])
-main_revenues = mrg1.generate(initial_year=2020, last_year=2023)
+mrg1 = bp.MainRevenueGenerator([France, Germany, Italy, USA, Canada, China, Japan])
+main_revenues = mrg1.decision_tree(initial_year=2020, last_year=2024)
+print(len(main_revenues))
 mro1 = bp.MainRevenueOptimizer()
 solutions = mro1.minimize(main_revenues=main_revenues, initial_revenue_max=1e6, increase_revenue_max=5,
-                                margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,
-                                revenue_obj=5e6)
-
-file = open('output.csv', 'w')
-
-for i, sol in enumerate(solutions):
-    title, datas = sol.to_csv(len(mrg1.geographic_areas))
-    if i == 0:
-        file.write(title + '\n')
-    file.write(datas + '\n')
-file.close()
-
-
-
+                          margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,
+                          revenue_obj=5e6)
+#
+# file = open('output.csv', 'w')
+#
+# for i, sol in enumerate(solutions):
+#     title, datas = sol.to_csv(len(mrg1.geographic_areas))
+#     if i == 0:
+#         file.write(title + '\n')
+#     file.write(datas + '\n')
+# file.close()
