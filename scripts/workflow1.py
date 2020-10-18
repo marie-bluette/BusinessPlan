@@ -42,6 +42,7 @@ block_generator = wf.InstanciateModel(bp.MainRevenueGenerator, name='MainRevenue
 method_generate = wf.ModelMethod(bp.MainRevenueGenerator, 'decision_tree', name='generate')
 block_optimizer = wf.InstanciateModel(bp.MainRevenueOptimizer, name='MainRevenueOptimizer')
 method_minimize = wf.ModelMethod(bp.MainRevenueOptimizer, 'minimize', name='minimize')
+method_sort = wf.ModelMethod(bp.MainRevenueOptimizer, 'sort_solutions', name='sort')
 
 parallel_plot_block = wf.ParallelPlot(['last_margin', 'cumulative_cost', 'cumulative_revenue',
                                        'number_main_area', 'number_area',
@@ -50,14 +51,16 @@ parallel_plot_block = wf.ParallelPlot(['last_margin', 'cumulative_cost', 'cumula
 blocks = []
 
 blocks.extend([block_generator, method_generate, block_optimizer, method_minimize,
-               parallel_plot_block])
+               method_sort, parallel_plot_block])
 
 pipes = [wf.Pipe(block_generator.outputs[0], method_generate.inputs[0]),
          wf.Pipe(method_generate.outputs[0], method_minimize.inputs[1]),
          wf.Pipe(block_optimizer.outputs[0], method_minimize.inputs[0]),
-         wf.Pipe(method_minimize.outputs[0], parallel_plot_block.inputs[0])]
+         wf.Pipe(method_minimize.outputs[0], method_sort.inputs[1]),
+         wf.Pipe(block_optimizer.outputs[0], method_sort.inputs[0]),
+         wf.Pipe(method_sort.outputs[0], parallel_plot_block.inputs[0])]
 
-workflow = wf.Workflow(blocks, pipes, method_minimize.outputs[0], name='Generation')
+workflow = wf.Workflow(blocks, pipes, method_sort.outputs[0], name='Generation')
 
 workflow.plot_jointjs()
 
@@ -70,10 +73,12 @@ input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Ita
                 workflow.index(method_minimize.inputs[4]): 0.01,
                 workflow.index(method_minimize.inputs[5]): 1,
                 workflow.index(method_minimize.inputs[6]): 2e8,
-                workflow.index(method_minimize.inputs[7]): 5e6, }
+                workflow.index(method_minimize.inputs[7]): 5e6,
+
+                workflow.index(method_sort.inputs[2]): 100, }
 
 workflow_run = workflow.run(input_values)
 
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
-c = Client(api_url='https://api.ibm.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url='https://api.ibm.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)

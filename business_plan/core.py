@@ -263,7 +263,7 @@ class MainRevenue(DessiaObject):
     def __init__(self, operating_divisions: List[OperatingDivision],
                  last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
                  last_revenue: float = None, strategy_txt: str = '', revenue_txt: str = '',
-                 number_main_area:int = None, number_area:int = None,
+                 number_main_area: int = None, number_area: int = None,
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
@@ -402,7 +402,7 @@ class MainRevenueOptimizer(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
-    _dessia_methods = ['minimize']
+    _dessia_methods = ['minimize', 'sort_solutions']
 
     def __init__(self, name: str = ''):
         DessiaObject.__init__(self, name=name)
@@ -418,6 +418,24 @@ class MainRevenueOptimizer(DessiaObject):
             if solution is not None:
                 solutions.append(solution)
         return solutions
+
+    def sort_solutions(self, main_revenues: List[MainRevenue], number_solutions_per_family: int) -> List[MainRevenue]:
+        solutions = {}
+        for main_revenue in main_revenues:
+            key = (main_revenue.number_main_area, main_revenue.number_area)
+            if key in solutions:
+                solutions[key].append(main_revenue)
+            else:
+                solutions[key] = [main_revenue]
+        best_main_revenues = []
+        for key, mrs in solutions.items():
+            li_margin = []
+            for mr in mrs:
+                li_margin.append(mr.last_margin)
+            sort_li_margin = npy.argsort(npy.array(li_margin))
+            best_main_revenues.extend(
+                [mrs[i] for i in sort_li_margin[0: min(number_solutions_per_family, len(sort_li_margin))]])
+        return best_main_revenues
 
     def update(self, x, main_revenue):
         if not npy.allclose(npy.array(x), npy.array(self._x)):
