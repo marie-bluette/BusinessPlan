@@ -491,7 +491,7 @@ class MainRevenueGenerator(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
 
-    _dessia_methods = ['generate']
+    _dessia_methods = ['generate', 'decision_tree']
 
     def __init__(self, geographic_areas: List[GeographicArea],
                  name: str = ''):

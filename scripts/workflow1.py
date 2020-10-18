@@ -39,7 +39,7 @@ Japan = bp.GeographicArea(market_size=900000000, market_maturity=4, market_acces
                           main_geographic_area=Asia, name='Japan')
 
 block_generator = wf.InstanciateModel(bp.MainRevenueGenerator, name='MainRevenueGenerator')
-method_generate = wf.ModelMethod(bp.MainRevenueGenerator, 'generate', name='generate')
+method_generate = wf.ModelMethod(bp.MainRevenueGenerator, 'decision_tree', name='generate')
 block_optimizer = wf.InstanciateModel(bp.MainRevenueOptimizer, name='MainRevenueOptimizer')
 method_minimize = wf.ModelMethod(bp.MainRevenueOptimizer, 'minimize', name='minimize')
 
@@ -60,7 +60,7 @@ workflow = wf.Workflow(blocks, pipes, method_minimize.outputs[0], name='Generati
 
 workflow.plot_jointjs()
 
-input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Italy, USA, Canada, China],
+input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Italy, USA, Canada, China, Japan],
                 workflow.index(method_generate.inputs[1]): 2020,
                 workflow.index(method_generate.inputs[2]): 2023,
 
