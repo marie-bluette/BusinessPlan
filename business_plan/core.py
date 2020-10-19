@@ -283,6 +283,14 @@ class MainRevenue(DessiaObject):
         else:
             self.last_margin, self.cumulative_cost, self.cumulative_revenue, self.last_revenue, self.strategy_txt, self.revenue_txt = last_margin, cumulative_cost, cumulative_revenue, last_revenue, strategy_txt, revenue_txt
 
+    def copy(self):
+        operating_divisions = [od.copy() for od in self.operating_divisions]
+        return MainRevenue(operating_divisions=operating_divisions, last_margin=self.last_margin,
+                           cumulative_cost=self.cumulative_cost, cumulative_revenue=self.cumulative_revenue,
+                           last_revenue=self.last_revenue, strategy_txt=self.strategy_txt, revenue_txt=self.revenue_txt,
+                           number_main_area=self.number_main_area, number_area=self.number_area,
+                           name=self.name)
+
     def update(self):
         last_year = self.last_year()
         last_margin = self.margin(last_year)
@@ -395,6 +403,33 @@ class MainRevenue(DessiaObject):
         return str(last_year)
 
 
+class MainRevenueResult(DessiaObject):
+    _standalone_in_db = True
+    _generic_eq = True
+    _non_serializable_attributes = []
+    _non_eq_attributes = ['name']
+    _non_hash_attributes = ['name']
+
+    def __init__(self, last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
+                 last_revenue: float = None, strategy_txt: str = '', revenue_txt: str = '',
+                 number_main_area: int = None, number_area: int = None, name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.number_area = number_area
+        self.number_main_area = number_main_area
+        self.revenue_txt = revenue_txt
+        self.strategy_txt = strategy_txt
+        self.last_revenue = last_revenue
+        self.cumulative_revenue = cumulative_revenue
+        self.cumulative_cost = cumulative_cost
+        self.last_margin = last_margin
+
+    @classmethod
+    def genere(cls, main_revenue: MainRevenue):
+        return cls(main_revenue.last_margin, main_revenue.cumulative_cost, main_revenue.cumulative_revenue,
+                   main_revenue.last_revenue, main_revenue.strategy_txt, main_revenue.revenue_txt,
+                   main_revenue.number_main_area, main_revenue.number_area, main_revenue.name)
+
+
 class MainRevenueOptimizer(DessiaObject):
     _standalone_in_db = True
     _generic_eq = True
@@ -409,7 +444,7 @@ class MainRevenueOptimizer(DessiaObject):
 
     def minimize(self, main_revenues: List[MainRevenue], initial_revenue_max: float, increase_revenue_max: float,
                  margin_min: float, margin_max: float, cumulative_cost_max: float, revenue_obj: float) -> List[
-        MainRevenue]:
+        MainRevenueResult]:
         solutions = []
         for main_revenue in main_revenues:
             self._x = [0] * 2 * len(main_revenue.operating_divisions)
@@ -419,24 +454,25 @@ class MainRevenueOptimizer(DessiaObject):
                 solutions.append(solution)
         return solutions
 
-    def sort_solutions(self, main_revenues: List[MainRevenue], number_solutions_per_family: int) -> List[MainRevenue]:
+    def sort_solutions(self, main_revenue_results: List[MainRevenueResult], number_solutions_per_family: int) -> List[
+        MainRevenueResult]:
         solutions = {}
-        for main_revenue in main_revenues:
-            key = (main_revenue.number_main_area, main_revenue.number_area)
+        for main_revenue_result in main_revenue_results:
+            key = (main_revenue_result.number_main_area, main_revenue_result.number_area)
             if key in solutions:
-                solutions[key].append(main_revenue)
+                solutions[key].append(main_revenue_result)
             else:
-                solutions[key] = [main_revenue]
-        best_main_revenues = []
+                solutions[key] = [main_revenue_result]
+        best_main_revenue_results = []
         for key, mrs in solutions.items():
             li_margin = []
             for mr in mrs:
                 li_margin.append(mr.last_margin)
             sort_li_margin = npy.argsort(npy.array(li_margin))
             best_li_margin = sort_li_margin[::-1]
-            best_main_revenues.extend(
+            best_main_revenue_results.extend(
                 [mrs[i] for i in best_li_margin[0: min(number_solutions_per_family, len(best_li_margin))]])
-        return best_main_revenues
+        return best_main_revenue_results
 
     def update(self, x, main_revenue):
         if not npy.allclose(npy.array(x), npy.array(self._x)):
@@ -498,7 +534,7 @@ class MainRevenueOptimizer(DessiaObject):
 
         f_obj = 0
         x_out = None
-        solution = None
+        output = None
         for nb in range(10):
             x0 = []
             for b in bnds:
@@ -518,7 +554,8 @@ class MainRevenueOptimizer(DessiaObject):
                     x_out = x_opt
                     solution = main_revenue.copy()
                     solution.update()
-        return solution
+                    output = MainRevenueResult.genere(solution)
+        return output
 
 
 class MainRevenueGenerator(DessiaObject):

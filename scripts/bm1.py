@@ -45,16 +45,17 @@ mro1 = bp.MainRevenueOptimizer()
 solutions = mro1.minimize(main_revenues=main_revenues, initial_revenue_max=1e6, increase_revenue_max=5,
                           margin_min=0.01, margin_max=1, cumulative_cost_max=2e8,
                           revenue_obj=5e6)
+sols = mro1.sort_solutions(solutions, 50)
 
 # c = Client(api_url='https://api.ibm.dessia.tech')
 # r = c.create_object_from_python_object(solutions[0])
 
-#
-# file = open('output.csv', 'w')
-#
-# for i, sol in enumerate(solutions):
-#     title, datas = sol.to_csv(len(mrg1.geographic_areas))
-#     if i == 0:
-#         file.write(title + '\n')
-#     file.write(datas + '\n')
-# file.close()
+
+file = open('output.csv', 'w')
+
+for i, sol in enumerate(solutions):
+    title, datas = sol.to_csv(len(mrg1.geographic_areas))
+    if i == 0:
+        file.write(title + '\n')
+    file.write(datas + '\n')
+file.close()

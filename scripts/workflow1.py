@@ -66,7 +66,7 @@ workflow.plot_jointjs()
 
 input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Italy, USA, Canada, China, Japan],
                 workflow.index(method_generate.inputs[1]): 2020,
-                workflow.index(method_generate.inputs[2]): 2023,
+                workflow.index(method_generate.inputs[2]): 2022,
 
                 workflow.index(method_minimize.inputs[2]): 1e6,
                 workflow.index(method_minimize.inputs[3]): 5,
@@ -75,10 +75,10 @@ input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Ita
                 workflow.index(method_minimize.inputs[6]): 2e8,
                 workflow.index(method_minimize.inputs[7]): 5e6,
 
-                workflow.index(method_sort.inputs[2]): 100, }
+                workflow.index(method_sort.inputs[2]): 50, }
 
 workflow_run = workflow.run(input_values)
 
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
-# c = Client(api_url='https://api.ibm.dessia.tech')
-# r = c.create_object_from_python_object(workflow_run)
+c = Client(api_url='https://api.ibm.dessia.tech')
+r = c.create_object_from_python_object(workflow_run)
