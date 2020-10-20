@@ -301,12 +301,12 @@ class MainRevenue(DessiaObject):
         for operating_division in self.operating_divisions:
             name = operating_division.geographic_area.name
             start_year = operating_division.revenue.min()
-            strategy_txt += ' ' + name + ':' + str(start_year)
+            strategy_txt += ',' + name + ':' + str(start_year)
         revenue_txt = ''
         for operating_division in self.operating_divisions:
             name = operating_division.geographic_area.name
             turnover = operating_division.revenue.evolutions[last_year]
-            revenue_txt += ' ' + name + ':' + str(turnover)
+            revenue_txt += ',' + name + ':' + str(turnover)
         self.last_margin, self.cumulative_cost, self.cumulative_revenue, self.last_revenue, self.strategy_txt, self.revenue_txt = last_margin, cumulative_cost, cumulative_revenue, last_revenue, strategy_txt, revenue_txt
 
     def __str__(self):
@@ -428,6 +428,37 @@ class MainRevenueResult(DessiaObject):
         return cls(main_revenue.last_margin, main_revenue.cumulative_cost, main_revenue.cumulative_revenue,
                    main_revenue.last_revenue, main_revenue.strategy_txt, main_revenue.revenue_txt,
                    main_revenue.number_main_area, main_revenue.number_area, main_revenue.name)
+
+    def to_csv(self, max_country=None):
+        if max_country is None:
+            max_country = len(self.operating_divisions)
+        title = ''
+        datas = ''
+        title += 'last_margin'
+        datas += str(self.last_margin)
+        title += ',cumulative_cost'
+        datas += ',' + str(self.cumulative_cost)
+        out = self.strategy_txt.split(',')
+        for dat in out[1:]:
+            title += ',name, start_year'
+            output = dat.split(':')
+            datas += ',' + output[0] + ',' + output[1]
+        for i in range(max_country - len(out[1:])):
+            title += ',name, start_year'
+            datas += ',' + ','
+
+        for dat in out[1:]:
+            title += ',name, start_year'
+            output = dat.split(':')
+            datas += ',' + output[0] + ',' + output[1]
+        for i in range(max_country - len(out[1:])):
+            title += ',name, start_year'
+            datas += ',' + ','
+        title += ',cumulative_revenue'
+        datas += ',' + str(self.cumulative_revenue)
+        title += ',last_revenue'
+        datas += ',' + str(self.last_revenue)
+        return title, datas
 
 
 class MainRevenueOptimizer(DessiaObject):
