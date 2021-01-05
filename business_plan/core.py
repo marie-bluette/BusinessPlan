@@ -10,10 +10,10 @@ import numpy as npy
 
 class Employee(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, profit_center: bool = False,
                  salary: float = None,
@@ -76,10 +76,10 @@ class EmployeeMaker(Employee):
 
 class Evolution(DessiaObject):
     _standalone_in_db = False
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, evolutions: Dict[str, float] = None,
                  name: str = ''):
@@ -133,10 +133,10 @@ class Evolution(DessiaObject):
 
 class MainDivision(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, asset_improve: float,
                  name: str = ''):
@@ -146,10 +146,10 @@ class MainDivision(DessiaObject):
 
 class MainGeographicArea(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, europe: bool = False,
                  asia: bool = False,
@@ -174,10 +174,10 @@ class MainGeographicArea(DessiaObject):
 
 class GeographicArea(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, market_size: float,
                  market_maturity: float,
@@ -211,10 +211,10 @@ class GeographicArea(DessiaObject):
 
 class OperatingDivision(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, geographic_area: GeographicArea,
                  revenue: Evolution,
@@ -255,10 +255,10 @@ class OperatingDivision(DessiaObject):
 
 class MainRevenue(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, operating_divisions: List[OperatingDivision],
                  last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
@@ -405,10 +405,10 @@ class MainRevenue(DessiaObject):
 
 class MainRevenueResult(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     def __init__(self, last_margin: float = None, cumulative_cost: float = None, cumulative_revenue: float = None,
                  last_revenue: float = None, strategy_txt: str = '', revenue_txt: str = '',
@@ -463,10 +463,10 @@ class MainRevenueResult(DessiaObject):
 
 class MainRevenueOptimizer(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     _dessia_methods = ['minimize', 'sort_solutions']
 
@@ -591,10 +591,10 @@ class MainRevenueOptimizer(DessiaObject):
 
 class MainRevenueGenerator(DessiaObject):
     _standalone_in_db = True
-    _generic_eq = True
+    _eq_is_data_eq = True
     _non_serializable_attributes = []
-    _non_eq_attributes = ['name']
-    _non_hash_attributes = ['name']
+    _non_data_eq_attributes = ['name']
+    _non_data_hash_attributes = ['name']
 
     _dessia_methods = ['generate', 'decision_tree']
 

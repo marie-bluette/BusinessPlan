@@ -78,14 +78,14 @@ input_values = {workflow.index(block_generator.inputs[0]): [France, Germany, Ita
 
 workflow_run = workflow.run(input_values)
 
-file = open('output.csv', 'w')
-
-for i, sol in enumerate(workflow_run.output_value):
-    title, datas = sol.to_csv(len(workflow_run.input_values[0]))
-    if i == 0:
-        file.write(title + '\n')
-    file.write(datas + '\n')
-file.close()
+# file = open('output.csv', 'w')
+#
+# for i, sol in enumerate(workflow_run.output_value):
+#     title, datas = sol.to_csv(len(workflow_run.input_values[0]))
+#     if i == 0:
+#         file.write(title + '\n')
+#     file.write(datas + '\n')
+# file.close()
 
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 c = Client(api_url='https://api.atenia.dessia.tech')
