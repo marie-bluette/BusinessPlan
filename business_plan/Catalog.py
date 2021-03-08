@@ -9,14 +9,19 @@ class Catalog(DessiaObject):
     _non_data_eq_attributes = ['name']
     _non_data_hash_attributes = ['name']
 
-    def __init__(self, catalog_specifications: list):
-        DessiaObject.__init__(self, catalog_specifications=catalog_specifications)
-        self.catalog_items = []
-        for catalog_specification in catalog_specifications:
-            catalog_item = CatalogItem(
-                catalog_specification['name'],
-                catalog_specification['unit_price'],
-                catalog_specification['unit_cost'],
-                catalog_specification['unit_name']
-            )
-            self.catalog_items.append(catalog_item)
+    def __init__(self, items: list[CatalogItem]):
+        DessiaObject.__init__(self, items=items)
+        self.items = items
+
+    @staticmethod
+    def factory(catalog_specifications: list[dict]):
+        items = []
+        for item in catalog_specifications:
+            items.append(CatalogItem(
+                item['name'],
+                item['unit_price'],
+                item['unit_cost'],
+                item['unit_name']
+            ))
+        return Catalog(items)
+

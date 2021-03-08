@@ -1,5 +1,8 @@
+from dessia_common import DessiaObject
 
-class CatalogItem:
+
+class CatalogItem(DessiaObject):
+    _standalone_in_db = True
 
     def __init__(self, name: str, unit_price: float, unit_cost: float,
                  unit_name: str):
