@@ -3,6 +3,32 @@ import business_plan as bp
 from dessia_common import workflow as wf
 import volmdlr as vm
 import math
+import business_plan.pricing as pricing
+
+
+licence_manager = pricing.RecurringRevenue(revenue_per_month = 100, pricing_family = pricing.PricingFamily('manager'))
+licence_user = pricing.RecurringRevenue(revenue_per_month = 200, pricing_family = pricing.PricingFamily('user'))
+licence_super_user = pricing.RecurringRevenue(revenue_per_month = 500, pricing_family = pricing.PricingFamily('super-user'))
+
+package_family_small = pricing.PackageFamily('small')
+package_family_middle = pricing.PackageFamily('middle')
+package_family_large = pricing.PackageFamily('large')
+
+package_small = pricing.Package(sub_packages=[pricing.SubPackage(recurring_revenue=licence_manager, number=2),
+                                              pricing.SubPackage(recurring_revenue=licence_user, number=1),
+                                              pricing.SubPackage(recurring_revenue=licence_super_user, number=1)],
+                                package_family=package_family_small)
+
+package_middle = pricing.Package(sub_packages=[pricing.SubPackage(recurring_revenue=licence_manager, number=4),
+                                              pricing.SubPackage(recurring_revenue=licence_user, number=3),
+                                              pricing.SubPackage(recurring_revenue=licence_super_user, number=1)],
+                                package_family=package_family_middle)
+
+package_large = pricing.Package(sub_packages=[pricing.SubPackage(recurring_revenue=licence_manager, number=10),
+                                              pricing.SubPackage(recurring_revenue=licence_user, number=8),
+                                              pricing.SubPackage(recurring_revenue=licence_super_user, number=3)],
+                                package_family=package_family_large)
+raise
 
 Europe = bp.MainGeographicArea(europe=True)
 Asia = bp.MainGeographicArea(asia=True)
