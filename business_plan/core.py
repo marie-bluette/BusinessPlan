@@ -46,7 +46,7 @@ class Employee(DessiaObject):
         return Evolution(salary_evolution)
 
 
-class EmployeeSale(Employee):
+class Sale(Employee):
     def __init__(self, salary: float,
                  general_expenses: float, hiring_year: float = None, name: str = ''):
         Employee.__init__(self, salary=salary, general_expenses=general_expenses,
