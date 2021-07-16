@@ -1,5 +1,5 @@
 from dessia_common import DessiaObject
-from typing import TypeVar, List, Dict
+from typing import TypeVar, List, Dict, Union
 from itertools import product, permutations
 from scipy.optimize import fsolve, minimize
 import random
@@ -10,7 +10,7 @@ from business_plan.core import Evolution
 
 
 class Employee(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
     _eq_is_data_eq = True
     _non_serializable_attributes = []
     _non_data_eq_attributes = ['name']
@@ -75,21 +75,6 @@ class Manager(Employee):
                           profit_center=False, hiring_year=hiring_year, name=name)
 
 
-class SubEmployee(DessiaObject):
-    _standalone_in_db = True
-    _eq_is_data_eq = True
-    _non_serializable_attributes = []
-    _non_data_eq_attributes = ['name']
-    _non_data_hash_attributes = ['name']
-
-    def __init__(self, employee: Employee,
-                 number: int,
-                 name: str = ''):
-        DessiaObject.__init__(self, name=name)
-        self.number = number
-        self.employee = employee
-
-
 class EmployeeNeedRule(DessiaObject):
     _standalone_in_db = True
     _eq_is_data_eq = True
@@ -99,7 +84,7 @@ class EmployeeNeedRule(DessiaObject):
 
     def __init__(self, if_employee: Employee,
                  number_greater_than: int,
-                 then_employee: List[SubEmployee],
+                 then_employee: List[Union[Sale, Support, Developer, Manager]],
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
         self.then_employee = then_employee
@@ -114,35 +99,43 @@ class Team(DessiaObject):
     _non_data_eq_attributes = ['name']
     _non_data_hash_attributes = ['name']
 
-    def __init__(self, sub_employees: List[SubEmployee],
+    def __init__(self, employees: List[Union[Sale, Support, Developer, Manager]],
                  name: str = ''):
         DessiaObject.__init__(self, name=name)
-        self.sub_employees = sub_employees
+        self.employees = employees
 
     @classmethod
-    def generate(cls, employee_need_rules: List[EmployeeNeedRule], sub_employees: List[SubEmployee]):
-        dict_sub_employees = {}
-        for sub_employee in sub_employees:
-            employee = sub_employee.employee
-            number = sub_employee.number
-            if employee in dict_sub_employees:
-                dict_sub_employees[employee] += number
+    def generate(cls, employee_need_rules: List[EmployeeNeedRule], employees: List[Union[Sale, Support, Developer, Manager]]):
+        dict_employees = {}
+        for employee in employees:
+            if employee.__class__ in dict_employees:
+                dict_employees[employee.__class__] += 1
             else:
-                dict_sub_employees[employee] = number
-        new_sub_employees = {}
-        for employee, number_employee in dict_sub_employees.items():
+                dict_employees[employee.__class__] = 1
+        dict_new_employees = {}
+        print(dict_employees)
+        for employee_class, number_employee in dict_employees.items():
             for employee_need_rule in employee_need_rules:
-                if isinstance(employee, employee_need_rule.if_employee):
+                if isinstance(employee_need_rule.if_employee, employee_class):
+                    print('ok')
                     if number_employee >= employee_need_rule.number_greater_than:
                         new_employees = employee_need_rule.then_employee
                         for new_employee in new_employees:
-                            if new_employee.employee in new_sub_employees:
-                                new_sub_employees[new_employee.employee] += new_employee.number
+                            if new_employee.__class__ in dict_new_employees:
+                                dict_new_employees[new_employee.__class__] += 1
                             else:
-                                new_sub_employees[new_employee.employee] = new_employee.number
-        dict_sub_employees.update(new_sub_employees)
-        new_sub_employees = [SubEmployee(k, v) for k, v in dict_sub_employees.items()]
-        return cls(new_sub_employees)
+                                dict_new_employees[new_employee.__class__] = 1
+
+        update_employees = employees
+        for employee_class, number_employee in dict_new_employees.items():
+            print(employee_class)
+            if str(employee_class) == str(Sale.__class__):
+                update_employees.extend([Sale(40000, 10000) for i in range(number_employee)])
+            if str(employee_class) == str(Support.__class__):
+                update_employees.extend([Support(40000, 10000) for i in range(number_employee)])
+            if str(employee_class) == str(Developer.__class__):
+                update_employees.extend([Developer(40000, 10000) for i in range(number_employee)])
+        return cls(update_employees)
 
 
 # class TeamRule(DessiaObject):
